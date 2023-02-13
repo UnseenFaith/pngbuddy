@@ -7,7 +7,7 @@ const routes = [
     component: () => import("../views/HomeView.vue"),
   },
   {
-    path: "/settings",
+    path: "/pngbuddy/settings/",
     name: "settings",
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
@@ -16,7 +16,7 @@ const routes = [
       import(/* webpackChunkName: "about" */ "../views/SettingsView.vue"),
   },
   {
-    path: "/avatar",
+    path: "/pngbuddy/avatar",
     name: "avatar",
     component: () => import("../views/AvatarView.vue"),
   },
