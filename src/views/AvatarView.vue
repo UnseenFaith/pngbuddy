@@ -6,6 +6,7 @@ import { ref } from "vue";
 const store = useAvatarStore();
 const speaking = ref(false);
 const blinking = ref(false);
+const muted = ref(false);
 
 const obs = new OBSWebSocket();
 
@@ -20,20 +21,47 @@ obs.on("InputVolumeMeters", ({ inputs }) => {
   }
 });
 
-try {
-  await obs.connect("ws://127.0.0.1:4455", "Qa1fpJzdsTziAr6a", {
-    eventSubscriptions:
-      EventSubscription.Inputs | EventSubscription.InputVolumeMeters,
-  });
+obs.on("InputMuteStateChanged", (input) => {
+  if (input.inputName == store.inputDevice) {
+    muted.value = input.inputMuted;
+  }
+});
 
-  const { inputs } = await obs.call("GetInputList");
-  const audioInputs = inputs.filter((i) => i.inputKind.startsWith("wasapi"));
-  store.inputs = audioInputs.map((i) => i.inputName);
-} catch (err) {
-  console.error(err);
+obs.on("InputCreated", (input) => {
+  if (!input.inputKind.startsWith("wasapi")) return;
+  store.$patch({
+    inputs: [...store.inputs, input.inputName],
+  });
+});
+
+obs.on("InputNameChanged", (input) => {
+  if (store.inputDevice == input.oldInputName) {
+    store.inputDevice = input.inputName;
+  }
+  store.$patch({
+    inputs: [
+      ...store.inputs.filter((i) => i != input.oldInputName),
+      input.inputName,
+    ],
+  });
+});
+
+async function connectToOBS(password, port) {
+  try {
+    await obs.connect("ws://127.0.0.1:" + port, password, {
+      eventSubscriptions:
+        EventSubscription.Inputs | EventSubscription.InputVolumeMeters,
+    });
+
+    const { inputs } = await obs.call("GetInputList");
+    const audioInputs = inputs.filter((i) => i.inputKind.startsWith("wasapi"));
+    store.inputs = audioInputs.map((i) => i.inputName);
+  } catch (err) {
+    console.error(err);
+  }
 }
 
-// Come back to this... not sure what's causing the flickering, even at lower intervals/blinks it still flashes
+// Set up blinking interval
 setInterval(() => {
   if (blinking.value) return;
   blinking.value = true;
@@ -41,6 +69,8 @@ setInterval(() => {
     blinking.value = false;
   }, store.blinkDuration);
 }, store.blinkInterval);
+
+await connectToOBS(store.password, store.port);
 </script>
 
 <template>
@@ -84,6 +114,14 @@ setInterval(() => {
           v-bind:src="store.blinkSpeak"
         ></v-img>
       </div>
+      <div class="image">
+        <v-img
+          width="1920"
+          height="1080"
+          :class="store.grayscale && muted ? 'grayscale active' : 'inactive'"
+          v-bind:src="store.idle"
+        ></v-img>
+      </div>
     </div>
   </v-container>
 </template>
@@ -113,5 +151,9 @@ html {
 
 .inactive {
   opacity: 0;
+}
+
+.grayscale {
+  filter: grayscale(1);
 }
 </style>

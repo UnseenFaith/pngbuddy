@@ -14,6 +14,8 @@ export const useAvatarStore = defineStore("avatar", () => {
   const blinkInterval = ref(15000);
   const threshold = ref(30);
   const inputs = ref([]);
+  const port = ref(4455);
+  const password = ref("");
 
   function updateInputDevice(name) {
     inputDevice.value = name;
@@ -38,5 +40,7 @@ export const useAvatarStore = defineStore("avatar", () => {
     inputs,
     updateInputDevice,
     updateBlink,
+    port,
+    password,
   };
 });

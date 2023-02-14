@@ -57,6 +57,10 @@ function updateBlinkInterval(number) {
 function updateBlinkDuration(number) {
   store.blinkDuration = parseInt(number);
 }
+
+function updatePort(number) {
+  store.port = parseInt(number);
+}
 </script>
 
 <template>
@@ -129,8 +133,11 @@ function updateBlinkDuration(number) {
               accept="image/*"
               @update:model-value="onBlinkSpeakChange"
             />
-            <v-text-field label="Websocket Password" />
-            <v-text-field label="Websocket Port" />
+            <v-text-field label="Websocket Password" v-model="store.password" />
+            <v-text-field
+              label="Websocket Port"
+              @update:model-value="updatePort"
+            />
           </v-container>
         </v-col>
         <v-responsive width="100%" />
