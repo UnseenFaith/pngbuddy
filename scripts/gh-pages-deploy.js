@@ -16,9 +16,7 @@ const thirdLog = `${emoji.get("rocket")} ${chalk.green(
     await execa.command("git checkout --orphan gh-pages");
     console.log(firstLog);
     await execa.command("npm run build", { stdio: "inherit" });
-    await execa.command("cd dist");
-    await execa.command("cp index.html 404.html");
-    await execa.command("cd ../");
+    await execa.command("copy ./dist/index.html ./dist/404.html");
     await execa.command("git --work-tree dist add --all");
     await execa.command('git --work-tree dist commit -m "gh-pages"');
     console.log(secondLog);
