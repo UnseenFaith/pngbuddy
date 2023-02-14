@@ -28,7 +28,7 @@ const thirdLog = `${emoji.get("rocket")} ${chalk.green(
     await execa.command("git branch -D gh-pages");
     console.log(thirdLog);
   } catch (e) {
-    console.log(e.message);
+    console.log(e);
     process.exit(1);
   }
 })();
