@@ -10,7 +10,7 @@ const max = ref(0);
 
 <template>
   <v-slider
-    v-model="store.threshold"
+    :model-value="store.threshold"
     :max="max"
     :min="min"
     :step="1"
